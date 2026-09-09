@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>TD BANK — Mobile Banking</title>
+<style>
+:root{
+--brand-dark: #0c3d24;
+--brand: #1e8449;
+--brand-light: #34c26e;
+--accent: #eafbf0;
+--ink: #16211a;
+--muted: #74857c;
+--line: #e9ede9;
+--white: #ffffff;
+--bg: #f5f7f5;
+--danger: #d64545;
+}
+*{box-sizing:border-box; margin:0; padding:0; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif; -webkit-tap-highlight-color:transparent; min-width:0;}
+html,body{ height:100%; width:100%; background:var(--bg); overflow:hidden; }
+#app{width:100%;max-width:430px;height:100vh;height:100dvh;margin:0 auto;background:var(--white);position:relative;overflow:hidden;box-shadow:0 0 40px rgba(0,0,0,.06);}
+#login-view{position:absolute;inset:0;background:var(--white);display:flex;flex-direction:column;z-index:20;transition:transform .5s ease, opacity .4s ease;overflow-y:auto;}
+#login-view.hidden{transform:translateY(-100%);opacity:0;pointer-events:none;}
+.login-hero{background:linear-gradient(150deg, var(--brand-dark), var(--brand) 80%);padding:clamp(30px,8vh,48px) 24px 28px;border-radius:0 0 28px 28px;color:#fff;flex-shrink:0;}
+.login-brand{display:flex;align-items:center;gap:9px;font-weight:800;font-size:22px;margin-bottom:6px;}
+.login-brand .mark{width:30px;height:30px;flex-shrink:0;border-radius:9px;background:rgba(255,255,255,.18);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;}
+.login-sub{font-size:12.5px;opacity:.85;letter-spacing:.3px;}
+.login-shield{margin-top:18px;font-size:11px;opacity:.8;display:flex;align-items:flex-start;gap:6px;}
+.login-shield svg{flex-shrink:0;margin-top:1px;}
+.login-body{flex:1;padding:22px 24px 26px;}
+.login-title{font-size:19px;font-weight:800;color:var(--ink);margin-bottom:18px;}
+.field{margin-bottom:13px;}
+.field label{display:block;font-size:11px;font-weight:700;color:var(--muted);letter-spacing:.4px;margin-bottom:6px;}
+.field input{width:100%;border:1.5px solid var(--line);border-radius:10px;padding:11px 14px;font-size:14px;color:var(--ink);background:#fafcfa;outline:none;}
+.field input:focus{border-color:var(--brand);}
+.login-error{display:none;background:#fdeeee;color:var(--danger);font-size:12px;font-weight:600;padding:9px 12px;border-radius:8px;margin-bottom:13px;}
+.login-error.show{display:block;}
+.remember{display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--ink);margin:4px 0 18px;}
+.remember input{accent-color:var(--brand);width:15px;height:15px;flex-shrink:0;}
+.btn-primary{width:100%;background:var(--brand);color:#fff;border:none;border-radius:26px;padding:13px;font-size:14.5px;font-weight:700;cursor:pointer;box-shadow:0 8px 20px rgba(30,132,73,.25);}
+.btn-primary:active{transform:scale(.98);}
+.login-links{text-align:center;margin-top:14px;font-size:12.5px;color:var(--brand);font-weight:600;line-height:1.9;}
+.demo-hint{text-align:center;font-size:10.5px;color:var(--muted);margin-top:6px;}
+.promo{margin-top:18px;background:var(--accent);border-radius:14px;padding:13px;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;}
+.promo p{font-size:12px;font-weight:600;color:var(--ink);line-height:1.4;flex:1 1 160px;min-width:0;}
+.promo span{background:var(--brand-dark);color:#fff;font-size:11px;font-weight:700;padding:8px 14px;border-radius:16px;white-space:nowrap;flex-shrink:0;}
+#dashboard-view{height:100%;display:flex;flex-direction:column;padding:0;}
+.dash-head{display:flex;justify-content:space-between;align-items:center;padding:14px 18px 4px;flex-shrink:0;gap:10px;}
+.avatar-btn{width:32px;height:32px;border-radius:50%;flex-shrink:0;background:var(--accent);display:flex;align-items:center;justify-content:center;border:none;cursor:pointer;position:relative;}
+.avatar-btn svg{width:14px;height:14px;stroke:var(--brand);fill:none;}
+.bell-dot{position:absolute;top:5px;right:5px;width:7px;height:7px;border-radius:50%;background:var(--danger);border:1.5px solid #fff;}
+.greeting{font-weight:700;font-size:13.5px;color:var(--ink);text-align:center;overflow-wrap:anywhere;}
+.balance-wrap{text-align:center;padding:6px 16px 10px;flex-shrink:0;}
+.balance-wrap .lbl{font-size:11px;color:var(--muted);margin-bottom:2px;}
+.balance-wrap .amt{font-size:clamp(20px,6.5vw,25px);font-weight:800;color:var(--ink);}
+.paycard{margin:0 18px 10px;flex-shrink:0;background:linear-gradient(135deg,var(--brand) 0%,var(--brand-dark) 100%);border-radius:16px;padding:14px 16px 12px;color:#fff;position:relative;overflow:hidden;}
+.paycard::before{content:"";position:absolute;right:-50px;top:-60px;width:150px;height:150px;border-radius:50%;background:rgba(255,255,255,.08);}
+.paycard .row1{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;}
+.paycard .chip{width:26px;height:19px;border-radius:5px;background:rgba(255,255,255,.25);}
+.paycard .mark{font-weight:800;font-size:13px;letter-spacing:.5px;}
+.paycard .num{font-size:clamp(13px,4vw,15px);letter-spacing:2px;font-weight:600;margin-bottom:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.paycard .row2{display:flex;justify-content:space-between;font-size:9px;gap:10px;}
+.paycard .row2 .lbl{opacity:.75;margin-bottom:2px;}
+.paycard .row2 .val{font-weight:700;font-size:11.5px;white-space:nowrap;}
+.searchbox{margin:0 18px 10px;flex-shrink:0;display:flex;align-items:center;gap:8px;background:#f3f5f3;border-radius:11px;padding:9px 13px;font-size:12.5px;color:var(--muted);}
+.searchbox svg{flex-shrink:0;width:14px;height:14px;stroke:var(--brand);fill:none;}
+.dash-actions{display:flex;justify-content:space-between;gap:6px;padding:0 18px 10px;flex-shrink:0;}
+.act{display:flex;flex-direction:column;align-items:center;gap:5px;font-size:9.5px;font-weight:600;color:var(--ink);flex:1 1 0;min-width:0;text-align:center;background:none;border:none;cursor:pointer;}
+.act .circ{width:36px;height:36px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;}
+.act .circ svg{width:16px;height:16px;stroke:var(--brand);fill:none;}
+.txn-wrap{flex:1;min-height:0;display:flex;flex-direction:column;padding:0 18px;border-top:1px solid var(--line);margin-top:2px;}
+.txn-title{display:flex;justify-content:space-between;align-items:center;font-weight:700;font-size:13px;color:var(--ink);padding:10px 0 6px;flex-shrink:0;}
+.txn-title span{font-size:11px;color:var(--muted);font-weight:600;}
+.txn-list{flex:1;min-height:0;overflow-y:auto;}
+.txn-row{display:flex;align-items:center;gap:11px;padding:8px 0;border-bottom:1px solid var(--line);}
+.txn-row .ic{width:32px;height:32px;border-radius:50%;flex-shrink:0;background:var(--accent);display:flex;align-items:center;justify-content:center;}
+.txn-row .ic svg{width:15px;height:15px;stroke:var(--brand);fill:none;}
+.txn-row .info{flex:1;min-width:0;}
+.txn-row .nm{font-size:12.5px;font-weight:600;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.txn-row .tm{font-size:10.5px;color:var(--muted);margin-top:1px;}
+.txn-row .amt{font-size:12.5px;font-weight:700;color:var(--ink);white-space:nowrap;flex-shrink:0;}
+.txn-row .amt.credit{color:var(--brand);}
+.bottom-nav{display:flex;justify-content:space-around;align-items:center;padding:10px 4px;flex-shrink:0;border-top:1px solid var(--line);}
+.bottom-nav svg{width:19px;height:19px;stroke:var(--muted);fill:none;}
+.bottom-nav .on svg{stroke:var(--brand);}
+.bottom-nav button{background:none;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:6px;}
+.searchbox input{border:none;background:transparent;outline:none;font-size:12.5px;color:var(--ink);flex:1;min-width:0;}
+.searchbox input::placeholder{color:var(--muted);}
+.sheet-backdrop{position:absolute;inset:0;background:rgba(10,20,14,.45);z-index:39;opacity:0;pointer-events:none;transition:opacity .25s ease;display:flex;align-items:flex-end;}
+.sheet-backdrop.show{opacity:1;pointer-events:auto;}
+.sheet-modal{width:100%;background:var(--white);border-radius:20px 20px 0 0;padding:22px 22px 28px;transform:translateY(100%);transition:transform .3s ease;max-height:80%;overflow-y:auto;}
+.sheet-backdrop.show .sheet-modal{transform:translateY(0);}
+.big-card{background:linear-gradient(135deg,var(--brand) 0%,var(--brand-dark) 100%);border-radius:18px;padding:20px;color:#fff;position:relative;overflow:hidden;margin-bottom:18px;}
+.big-card::before{content:"";position:absolute;right:-50px;top:-60px;width:170px;height:170px;border-radius:50%;background:rgba(255,255,255,.08);}
+.big-card .row1{display:flex;justify-content:space-between;align-items:center;margin-bottom:22px;}
+.big-card .chip{width:32px;height:23px;border-radius:5px;background:rgba(255,255,255,.25);}
+.big-card .mark{font-weight:800;font-size:15px;letter-spacing:.5px;}
+.big-card .num{font-size:18px;letter-spacing:2.5px;font-weight:600;margin-bottom:18px;}
+.big-card .row2{display:flex;justify-content:space-between;font-size:10px;gap:10px;}
+.big-card .row2 .lbl{opacity:.75;margin-bottom:3px;}
+.big-card .row2 .val{font-weight:700;font-size:13px;}
+.toggle-row{display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid var(--line);font-size:13px;color:var(--ink);font-weight:600;}
+.toggle-row button{border:none;background:var(--accent);color:var(--brand-dark);font-size:12px;font-weight:700;padding:7px 14px;border-radius:16px;cursor:pointer;}
+.toggle-row button.danger{background:#fdeeee;color:var(--danger);}
+.profile-row{display:flex;flex-direction:column;gap:2px;padding:12px 0;border-bottom:1px solid var(--line);}
+.profile-row .lbl{font-size:11px;color:var(--muted);font-weight:700;letter-spacing:.3px;}
+.profile-row .val{font-size:14px;color:var(--ink);font-weight:600;}
+.profile-avatar{width:56px;height:56px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;font-weight:800;color:var(--brand-dark);font-size:20px;margin:0 auto 14px;}
+#notif-backdrop{position:absolute;inset:0;background:rgba(10,20,14,.4);z-index:29;opacity:0;pointer-events:none;transition:opacity .3s ease;}
+#notif-backdrop.show{opacity:1;pointer-events:auto;}
+#notif-panel{position:absolute;top:0;left:0;right:0;max-height:82%;background:var(--white);border-radius:0 0 22px 22px;z-index:30;transform:translateY(-100%);transition:transform .35s ease;display:flex;flex-direction:column;box-shadow:0 12px 30px rgba(0,0,0,.15);}
+#notif-panel.show{transform:translateY(0);}
+.notif-head{display:flex;justify-content:space-between;align-items:center;padding:20px 20px 12px;border-bottom:1px solid var(--line);flex-shrink:0;}
+.notif-head h3{font-size:16px;color:var(--ink);}
+.notif-close{width:28px;height:28px;border-radius:50%;background:#f3f5f3;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.notif-close svg{width:13px;height:13px;stroke:var(--ink);fill:none;}
+.notif-list{overflow-y:auto;padding:6px 20px 18px;}
+.notif-row{display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid var(--line);}
+.notif-row .ic{width:36px;height:36px;border-radius:50%;flex-shrink:0;background:var(--accent);display:flex;align-items:center;justify-content:center;}
+.notif-row .ic svg{width:16px;height:16px;stroke:var(--brand);fill:none;}
+.notif-row .info{flex:1;min-width:0;}
+.notif-row .nm{font-size:13px;font-weight:600;color:var(--ink);}
+.notif-row .tm{font-size:11px;color:var(--muted);margin-top:1px;}
+.notif-row .amt{font-size:13px;font-weight:700;color:var(--ink);white-space:nowrap;flex-shrink:0;}
+.notif-row .amt.credit{color:var(--brand);}
+#action-backdrop{position:absolute;inset:0;background:rgba(10,20,14,.45);z-index:39;opacity:0;pointer-events:none;transition:opacity .25s ease;display:flex;align-items:flex-end;}
+#action-backdrop.show{opacity:1;pointer-events:auto;}
+#action-modal{width:100%;background:var(--white);border-radius:20px 20px 0 0;padding:22px 22px 26px;transform:translateY(100%);transition:transform .3s ease;}
+#action-backdrop.show #action-modal{transform:translateY(0);}
+.modal-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;}
+.modal-head h3{font-size:16px;color:var(--ink);}
+.modal-close{width:26px;height:26px;border-radius:50%;background:#f3f5f3;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.modal-close svg{width:12px;height:12px;stroke:var(--ink);fill:none;}
+.modal-msg{display:none;background:var(--accent);color:var(--brand-dark);font-size:12.5px;font-weight:600;padding:9px 12px;border-radius:8px;margin-bottom:13px;}
+.modal-msg.show{display:block;}
+</style>
+</head>
+<body>
+<div id="app">
+<!-- LOGIN VIEW -->
+<div id="login-view">
+<div class="login-hero">
+<div class="login-brand"><span class="mark">TD</span>TD BANK</div>
+<div class="login-sub">Your money, simplified.</div>
+<div class="login-shield"><svg width="13" height="13" viewBox="0 0 24 24" stroke="#fff" stroke-width="2" fill="none"><path d="M12 2l8 4v6c0 5-3.5 9-8 10-4.5-1-8-5-8-10V6l8-4z"/></svg>Member FDIC · Deposits insured up to applicable limits</div>
+</div>
+<div class="login-body">
+<div class="login-title">Welcome back</div>
+<div class="login-error" id="login-error">Incorrect username or password. Try again.</div>
+<div class="field"><label>USERNAME</label><input type="text" id="username" placeholder="Enter your username" autocomplete="username" /></div>
+<div class="field"><label>PASSWORD</label><input type="password" id="password" placeholder="Enter your password" autocomplete="current-password" /></div>
+<div class="remember"><input type="checkbox" id="remember" checked /><label for="remember">Remember me on this device</label></div>
+<button class="btn-primary" onclick="attemptLogin()">Log In</button>
+<div class="login-links">Forgot username or password?<br>Sign up for online banking</div>
+<div class="promo"><p>Open a savings account and earn a $150 bonus with qualifying activity.</p><span>Apply</span></div>
+</div>
+</div>
+
+<div id="dashboard-view">
+<div class="dash-head">
+<div class="avatar-btn"><svg viewBox="0 0 24 24" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h16"/></svg></div>
+<div class="greeting">Good Evening, Jayden</div>
+<button class="avatar-btn" onclick="toggleNotifications(true)" aria-label="Notifications"><svg viewBox="0 0 24 24" stroke-width="2"><path d="M15 17h5l-1.4-1.4A2 2 0 0118 14.2V11a6 6 0 10-12 0v3.2a2 2 0 01-.6 1.4L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg><span class="bell-dot"></span></button>
+</div>
+<div class="balance-wrap"><div class="lbl">Current Balance</div><div class="amt" id="balance-amt">$13,987.00</div></div>
+<div class="paycard"><div class="row1"><div class="chip"></div><div class="mark">J&A</div></div><div class="num">•••• •••• •••• 9875</div><div class="row2"><div><div class="lbl">Cardholder Name</div><div class="val">Molly Stone</div></div><div><div class="lbl">Exp. Date</div><div class="val">03/29</div></div></div></div>
+<div class="searchbox"><svg viewBox="0 0 24 24" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.35-4.35"/></svg><input type="text" id="search-input" placeholder="Search transactions..." oninput="handleSearch()" /></div>
+<div class="dash-actions">
+<button class="act" onclick="openActionModal('send')"><div class="circ"><svg viewBox="0 0 24 24" stroke-width="2"><path d="M4 12h13M13 6l6 6-6 6"/></svg></div>Send</button>
+<button class="act" onclick="openActionModal('transfer')"><div class="circ"><svg viewBox="0 0 24 24" stroke-width="2"><path d="M17 1l4 4-4 4M3 11V9a4 4 0 014-4h14M7 23l-4-4 4-4M21 13v2a4 4 0 01-4 4H3"/></svg></div>Transfer</button>
+<button class="act" onclick="openActionModal('pay')"><div class="circ"><svg viewBox="0 0 24 24" stroke-width="2"><rect x="3" y="11" width="18" height="10" rx="2"/><path d="M7 11V8a5 5 0 0110 0v3"/></svg></div>Pay Bills</button>
+<button class="act" onclick="openActionModal('deposit')"><div class="circ"><svg viewBox="0 0 24 24" stroke-width="2"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M12 8v8M8 12h8"/></svg></div>Deposit</button>
+</div>
+<div class="txn-wrap"><div class="txn-title">Recent Transactions <span id="txn-count-label"></span></div><div class="txn-list" id="txn-list"></div></div>
+<div class="bottom-nav">
+<button class="on" onclick="logout()" aria-label="Log out"><svg viewBox="0 0 24 24" stroke-width="2"><path d="M3 12l9-9 9 9M5 10v10h14V10"/></svg></button>
+<button><svg viewBox="0 0 24 24" stroke-width="2"><path d="M4 20V10M12 20V4M20 20v-7"/></svg></button>
+<button onclick="openCardModal()" aria-label="Card details"><svg viewBox="0 0 24 24" stroke-width="2"><rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18"/></svg></button>
+<button onclick="openProfileModal()" aria-label="Account details"><svg viewBox="0 0 24 24" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a8 8 0 0116 0v1"/></svg></button>
+<button><svg viewBox="0 0 24 24" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M8 12h8M12 8v8"/></svg></button>
+</div>
+</div>
+
+<div id="notif-backdrop" onclick="toggleNotifications(false)"></div>
+<div id="notif-panel"><div class="notif-head"><h3>Notifications</h3><button class="notif-close" onclick="toggleNotifications(false)" aria-label="Close"><svg viewBox="0 0 24 24" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg></button></div><div class="notif-list" id="notif-list"></div></div>
+
+<div id="action-backdrop" onclick="closeActionModal(event)"><div id="action-modal" onclick="event.stopPropagation()"><div class="modal-head"><h3 id="modal-title">Send Money</h3><button class="modal-close" onclick="closeActionModal()" aria-label="Close"><svg viewBox="0 0 24 24" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg></button></div><div class="modal-msg" id="modal-msg"></div><div class="field"><label id="modal-recipient-label">RECIPIENT</label><input type="text" id="modal-recipient" placeholder="Enter a name" /></div><div class="field"><label>AMOUNT</label><input type="number" id="modal-amount" placeholder="$0.00" min="0.01" step="0.01" /></div><button class="btn-primary" onclick="confirmAction()">Confirm</button></div></div>
+
+<div class="sheet-backdrop" id="card-backdrop" onclick="closeCardModal(event)"><div class="sheet-modal" onclick="event.stopPropagation()"><div class="modal-head"><h3>Your Card</h3><button class="modal-close" onclick="closeCardModal()" aria-label="Close"><svg viewBox="0 0 24 24" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg></button></div><div class="big-card"><div class="row1"><div class="chip"></div><div class="mark">J&A</div></div><div class="num" id="card-number-display">•••• •••• •••• 9875</div><div class="row2"><div><div class="lbl">Cardholder Name</div><div class="val">Molly Stone</div></div><div><div class="lbl">Exp. Date</div><div class="val">03/29</div></div><div><div class="lbl">CVV</div><div class="val" id="card-cvv-display">•••</div></div></div></div><div class="toggle-row">Show card number<button onclick="toggleCardNumber()" id="card-toggle-btn">Show</button></div><div class="toggle-row">Freeze this card<button onclick="toggleFreeze()" id="freeze-toggle-btn">Freeze</button></div></div></div>
+
+<div class="sheet-backdrop" id="profile-backdrop" onclick="closeProfileModal(event)"><div class="sheet-modal" onclick="event.stopPropagation()"><div class="modal-head"><h3>Account Details</h3><button class="modal-close" onclick="closeProfileModal()" aria-label="Close"><svg viewBox="0 0 24 24" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg></button></div><div class="profile-avatar">MS</div><div class="profile-row"><div class="lbl">FULL NAME</div><div class="val">Molly Stone</div></div><div class="profile-row"><div class="lbl">EMAIL</div><div class="val">molly.stone67@gmail.com</div></div><div class="profile-row"><div class="lbl">PHONE</div><div class="val">(555) 123-4567</div></div><div class="profile-row"><div class="lbl">EVERYDAY CHEQUING</div><div class="val">•••• 6499562</div></div><div class="profile-row"><div class="lbl">HIGH INTEREST SAVINGS</div><div class="val">•••• 6503721</div></div><div class="profile-row"><div class="lbl">MEMBER SINCE</div><div class="val">2021</div></div></div></div>
+</div>
+
+<script>
+const VALID_USERNAME="molly.stone67";
+const VALID_PASSWORD="Molly#26";
+const iconPaths={ride:'<path d="M3 7l9 6 9-6"/><rect x="3" y="5" width="18" height="14" rx="2"/>',cart:'<path d="M6 6h15l-1.5 9h-12z"/><circle cx="9" cy="20" r="1"/><circle cx="18" cy="20" r="1"/>',grocery:'<path d="M12 2l3 7h7l-5.5 4.5L18 21l-6-4-6 4 1.5-7.5L2 9h7z"/>',stream:'<rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="8" cy="12" r="2"/><path d="M18 10v4M6 10v4"/>',salary:'<path d="M12 2v20M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/>',coffee:'<path d="M4 3h13v9a4 4 0 01-4 4H8a4 4 0 01-4-4V3z"/><path d="M17 6h2a2 2 0 010 4h-2"/>',bolt:'<path d="M13 2L4 14h7l-1 8 9-12h-7l1-8z"/>',pill:'<rect x="4" y="10" width="16" height="7" rx="3.5" transform="rotate(-30 12 12)"/><line x1="9" y1="11" x2="15" y2="13"/>',dumbbell:'<path d="M6 8v8M18 8v8M2 12h4M18 12h4M6 12h12"/>',phone:'<rect x="7" y="2" width="10" height="20" rx="2"/><line x1="11" y1="18" x2="13" y2="18"/>',fork:'<path d="M6 2v8M9 2v8M6 10a3 3 0 003 3M12 2v20M18 2c-2 0-3 3-3 6s1 4 3 4 3-1 3-4-1-6-3-6z"/>',atm:'<rect x="2" y="5" width="20" height="14" rx="2"/><circle cx="12" cy="12" r="3"/>',briefcase:'<rect x="2" y="7" width="20" height="13" rx="2"/><path d="M8 7V5a2 2 0 012-2h4a2 2 0 012 2v2"/>',wifi:'<path d="M5 13a10 10 0 0114 0M8.5 16.5a5 5 0 017 0M12 20h.01"/>',book:'<path d="M4 4h11a2 2 0 012 2v14H6a2 2 0 01-2-2V4z"/><path d="M17 4v16"/>'};
+function formatDate(daysAgo){const d=new Date();d.setDate(d.getDate()-daysAgo);return d.toLocaleDateString('en-US',{month:'short',day:'numeric'});}
+let transactions=[{name:"Ride Share Co.",daysAgo:0,amount:-5.00,icon:"ride"},{name:"Online Marketplace",daysAgo:0,amount:-10.00,icon:"cart"},{name:"Grocery Market",daysAgo:1,amount:-42.30,icon:"grocery"},{name:"Streaming Subscription",daysAgo:2,amount:-15.99,icon:"stream"},{name:"Salary Deposit",daysAgo:3,amount:2450.00,icon:"salary"},{name:"Coffee Shop",daysAgo:3,amount:-6.75,icon:"coffee"},{name:"Electric Bill",daysAgo:4,amount:-88.40,icon:"bolt"},{name:"Pharmacy",daysAgo:5,amount:-23.10,icon:"pill"},{name:"Gym Membership",daysAgo:6,amount:-40.00,icon:"dumbbell"},{name:"Mobile Phone Bill",daysAgo:7,amount:-65.00,icon:"phone"},{name:"Restaurant",daysAgo:7,amount:-54.20,icon:"fork"},{name:"ATM Withdrawal",daysAgo:7,amount:-100.00,icon:"atm"},{name:"Freelance Payment",daysAgo:14,amount:350.00,icon:"briefcase"},{name:"Internet Bill",daysAgo:14,amount:-70.00,icon:"wifi"},{name:"Book Store",daysAgo:21,amount:-18.99,icon:"book"}].map(t=>({...t,date:formatDate(t.daysAgo)}));
+let balance=13987.00;
+function money(n){const abs=Math.abs(n).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});return(n<0?"-$":"+$")+abs;}
+function plainMoney(n){return"$"+n.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});}
+function renderRow(t){return `<div class="txn-row"><div class="ic"><svg viewBox="0 0 24 24" stroke-width="2">${iconPaths[t.icon]}</svg></div><div class="info"><div class="nm">${t.name}</div><div class="tm">${t.date}</div></div><div class="amt ${t.amount>0?'credit':''}">${money(t.amount)}</div></div>`;}
+function renderAll(){document.getElementById('balance-amt').textContent=plainMoney(balance);document.getElementById('notif-list').innerHTML=transactions.slice(0,15).map(renderRow).join('');renderTxnList();}
+function renderTxnList(){const query=document.getElementById('search-input').value.trim().toLowerCase();const list=document.getElementById('txn-list');if(query){const matches=transactions.filter(t=>t.name.toLowerCase().includes(query));list.innerHTML=matches.length?matches.map(renderRow).join(''):'<div style="padding:16px 0; font-size:12.5px; color:var(--muted); text-align:center;">No matching transactions.</div>';}else{list.innerHTML=transactions.slice(0,6).map(renderRow).join('');}}
+function handleSearch(){renderTxnList();}
+renderAll();
+function attemptLogin(){const u=document.getElementById('username').value.trim();const p=document.getElementById('password').value;const err=document.getElementById('login-error');if(u===VALID_USERNAME&&p===VALID_PASSWORD){err.classList.remove('show');document.getElementById('login-view').classList.add('hidden');}else{err.classList.add('show');}}
+function toggleNotifications(open){document.getElementById('notif-panel').classList.toggle('show',open);document.getElementById('notif-backdrop').classList.toggle('show',open);}
+const modalConfig={send:{title:"Send Money",label:"RECIPIENT",placeholder:"Enter a name",credit:false,icon:"ride"},transfer:{title:"Transfer",label:"TO ACCOUNT",placeholder:"e.g. Savings Account",credit:false,icon:"briefcase"},pay:{title:"Pay Bill",label:"BILLER",placeholder:"e.g. Electric Company",credit:false,icon:"bolt"},deposit:{title:"Deposit",label:"FROM",placeholder:"e.g. Payroll, Check #1123",credit:true,icon:"salary"}};
+let currentActionType=null;
+function openActionModal(type){currentActionType=type;const cfg=modalConfig[type];document.getElementById('modal-title').textContent=cfg.title;document.getElementById('modal-recipient-label').textContent=cfg.label;document.getElementById('modal-recipient').placeholder=cfg.placeholder;document.getElementById('modal-recipient').value='';document.getElementById('modal-amount').value='';document.getElementById('modal-msg').classList.remove('show');document.getElementById('action-backdrop').classList.add('show');}
+function closeActionModal(e){if(e&&e.target!==e.currentTarget)return;document.getElementById('action-backdrop').classList.remove('show');}
+function confirmAction(){const cfg=modalConfig[currentActionType];const recipient=document.getElementById('modal-recipient').value.trim();const amountVal=parseFloat(document.getElementById('modal-amount').value);const msg=document.getElementById('modal-msg');if(!recipient||isNaN(amountVal)||amountVal<=0){msg.textContent="Please enter a name and a valid amount.";msg.style.background="#fdeeee";msg.style.color="#d64545";msg.classList.add('show');return;}const signedAmount=cfg.credit?Math.abs(amountVal):-Math.abs(amountVal);balance+=signedAmount;transactions.unshift({name:recipient,daysAgo:0,date:formatDate(0),amount:signedAmount,icon:cfg.icon});renderAll();msg.textContent=`${cfg.title} of ${plainMoney(Math.abs(amountVal))} to ${recipient} confirmed.`;msg.style.background="var(--accent)";msg.style.color="var(--brand-dark)";msg.classList.add('show');setTimeout(()=>{document.getElementById('action-backdrop').classList.remove('show');},1100);}
+function logout(){toggleNotifications(false);closeActionModal();closeCardModal();closeProfileModal();document.getElementById('username').value='';document.getElementById('password').value='';document.getElementById('login-error').classList.remove('show');document.getElementById('search-input').value='';renderTxnList();document.getElementById('login-view').classList.remove('hidden');}
+let cardNumberShown=false;let cardFrozen=false;
+function openCardModal(){document.getElementById('card-backdrop').classList.add('show');}
+function closeCardModal(e){if(e&&e.target!==e.currentTarget)return;document.getElementById('card-backdrop').classList.remove('show');}
+function toggleCardNumber(){cardNumberShown=!cardNumberShown;document.getElementById('card-number-display').textContent=cardNumberShown?"4521 8890 3312 9875":"•••• •••• •••• 9875";document.getElementById('card-cvv-display').textContent=cardNumberShown?"482":"•••";document.getElementById('card-toggle-btn').textContent=cardNumberShown?"Hide":"Show";}
+function toggleFreeze(){cardFrozen=!cardFrozen;const btn=document.getElementById('freeze-toggle-btn');btn.textContent=cardFrozen?"Unfreeze":"Freeze";btn.classList.toggle('danger',cardFrozen);}
+function openProfileModal(){document.getElementById('profile-backdrop').classList.add('show');}
+function closeProfileModal(e){if(e&&e.target!==e.currentTarget)return;document.getElementById('profile-backdrop').classList.remove('show');}
+</script>
+</body>
+</html>
